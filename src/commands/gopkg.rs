@@ -12,7 +12,9 @@
 /// - go playground -> https://go.dev/play/
 /// - go tour -> https://go.dev/tour/
 /// - go docs -> https://go.dev/doc/
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::build_search_url;
 
 pub struct GopkgCommand;
@@ -37,6 +39,11 @@ impl BunnylolCommand for GopkgCommand {
             "Navigate to pkg.go.dev or search for Go packages",
             "go http",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["playground", "play"], "Open the Go Playground"),
+            BunnylolCommandOption::new(&["tour"], "Open A Tour of Go"),
+            BunnylolCommandOption::new(&["docs", "doc"], "Open Go documentation"),
+        ])
     }
 }
 
