@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::encode_url;
 
 pub struct SoundCloudCommand;
@@ -32,6 +34,10 @@ impl BunnylolCommand for SoundCloudCommand {
             "Navigate to SoundCloud (supports: likes)",
             "sc edm",
         )
+        .with_options(vec![BunnylolCommandOption::new(
+            &["likes"],
+            "Open your SoundCloud likes",
+        )])
     }
 }
 
