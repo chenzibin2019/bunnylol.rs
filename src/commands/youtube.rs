@@ -9,7 +9,9 @@
 /// Supports:
 /// - yt/youtube -> https://youtube.com/
 /// - yt [search terms] -> https://www.youtube.com/results?search_query=[search terms]
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::build_search_url;
 
 pub struct YouTubeCommand;
@@ -36,6 +38,13 @@ impl BunnylolCommand for YouTubeCommand {
             "Navigate to YouTube or search for videos",
             "yt rust programming",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["studio"], "Open YouTube Studio"),
+            BunnylolCommandOption::new(
+                &["subscriptions", "subs"],
+                "Open YouTube subscriptions",
+            ),
+        ])
     }
 }
 
