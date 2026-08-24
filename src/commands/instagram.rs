@@ -9,7 +9,9 @@
 /// Supports: ig, instagram, ig @[username], ig [search terms]
 /// Supports: ig reels -> redirects to Instagram Reels
 /// Supports: ig messages/msg/chat -> redirects to Instagram Direct Inbox
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::{build_path_url, build_search_url};
 
 pub struct InstagramCommand;
@@ -65,6 +67,13 @@ impl BunnylolCommand for InstagramCommand {
             "Navigate to Instagram profiles, search Instagram, or access Reels/Messages",
             "ig @instagram",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["reels"], "Open Instagram Reels"),
+            BunnylolCommandOption::new(
+                &["messages", "msg", "chat"],
+                "Open Instagram Direct messages",
+            ),
+        ])
     }
 }
 

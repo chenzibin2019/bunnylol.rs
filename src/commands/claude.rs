@@ -7,7 +7,9 @@
 
 /// Claude command handler
 /// Supports: claude -> redirects to claude.ai
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 
 pub struct ClaudeCommand;
 
@@ -44,6 +46,17 @@ impl BunnylolCommand for ClaudeCommand {
             "Navigate to Claude AI (supports: billing, cost, artifacts, chats, projects)",
             "claude projects",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["platform"], "Open Claude developer platform"),
+            BunnylolCommandOption::new(&["api", "keys", "apikey"], "Open Claude API keys"),
+            BunnylolCommandOption::new(&["billing", "cost"], "Open Claude billing settings"),
+            BunnylolCommandOption::new(&["artifacts"], "Open Claude Artifacts"),
+            BunnylolCommandOption::new(&["artifacts my"], "Open your Claude Artifacts"),
+            BunnylolCommandOption::new(&["chats"], "Open recent Claude chats"),
+            BunnylolCommandOption::new(&["projects"], "Open Claude projects"),
+            BunnylolCommandOption::new(&["usage"], "Open Claude usage settings"),
+            BunnylolCommandOption::new(&["upgrade"], "Open Claude upgrade page"),
+        ])
     }
 }
 

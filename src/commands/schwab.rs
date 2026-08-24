@@ -15,7 +15,9 @@
 /// - transfer/transfers/payments: Transfers and payments page
 /// - security: Security settings page
 /// - contact/contactus/call: Contact us page
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 
 pub struct SchwabCommand;
 
@@ -47,6 +49,20 @@ impl BunnylolCommand for SchwabCommand {
             "Charles Schwab shortcuts (billpay, orders, trade, transfer, security, contact)",
             "schwab trade",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["billpay"], "Open Schwab Bill Pay"),
+            BunnylolCommandOption::new(&["orders"], "Open Schwab order status"),
+            BunnylolCommandOption::new(&["trade"], "Open Schwab trading"),
+            BunnylolCommandOption::new(
+                &["transfer", "transfers", "payments"],
+                "Open Schwab transfers and payments",
+            ),
+            BunnylolCommandOption::new(&["security"], "Open Schwab security settings"),
+            BunnylolCommandOption::new(
+                &["contact", "contactus", "call"],
+                "Open Schwab contact page",
+            ),
+        ])
     }
 }
 

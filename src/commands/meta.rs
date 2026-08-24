@@ -10,7 +10,9 @@
 /// Supports: meta accounts/account -> redirects to Meta Accounts Center
 /// Supports: metaai/meta ai -> redirects to Meta AI
 /// Supports: meta pay -> redirects to Meta Pay
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 
 pub struct MetaCommand;
 
@@ -37,6 +39,14 @@ impl BunnylolCommand for MetaCommand {
             "Navigate to Meta, Meta AI, Meta Accounts Center, or Meta Pay",
             "meta accounts",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(
+                &["accounts", "account"],
+                "Open Meta Accounts Center",
+            ),
+            BunnylolCommandOption::new(&["ai"], "Open Meta AI"),
+            BunnylolCommandOption::new(&["pay"], "Open Meta Pay"),
+        ])
     }
 }
 

@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::config::get_global_config;
 use crate::utils::url_encoding::encode_url_special_char;
 use std::collections::HashMap;
@@ -168,6 +170,27 @@ impl BunnylolCommand for StockCommand {
             "Look up stock prices on Yahoo Finance, Finviz, TradingView, Google Finance, or Investing.com",
             "stock META  or  stock finviz META  or  $META",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["yahoo"], "Use Yahoo Finance for ticker lookup")
+                .requiring_argument(),
+            BunnylolCommandOption::new(&["finviz"], "Use Finviz for ticker lookup")
+                .requiring_argument(),
+            BunnylolCommandOption::new(
+                &["tradingview", "tv"],
+                "Use TradingView for ticker lookup",
+            )
+            .requiring_argument(),
+            BunnylolCommandOption::new(
+                &["google", "gf"],
+                "Use Google Finance for ticker lookup",
+            )
+            .requiring_argument(),
+            BunnylolCommandOption::new(
+                &["investing", "inv"],
+                "Use Investing.com for ticker lookup",
+            )
+            .requiring_argument(),
+        ])
     }
 }
 
@@ -234,20 +257,20 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_stock_command_with_equals() {
-        assert_eq!(
-            StockCommand::process_args_with_provider("stock RTY=F", "yahoo"),
-            "https://finance.yahoo.com/quote/RTY%3DF/"
-        );
-    }
-
     // Override in query beats config default
     #[test]
     fn test_stock_command_override_beats_config() {
         assert_eq!(
             StockCommand::process_args_with_provider("stock yahoo META", "finviz"),
             "https://finance.yahoo.com/quote/META/"
+        );
+    }
+
+    #[test]
+    fn test_stock_command_with_equals() {
+        assert_eq!(
+            StockCommand::process_args_with_provider("stock RTY=F", "yahoo"),
+            "https://finance.yahoo.com/quote/RTY%3DF/"
         );
     }
 

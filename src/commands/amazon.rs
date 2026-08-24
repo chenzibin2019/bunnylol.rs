@@ -14,7 +14,9 @@
 /// - az cart -> https://www.amazon.com/gp/cart/view.html/
 /// - az pay/wallet -> https://www.amazon.com/cpe/yourpayments/wallet
 /// - az [search terms] -> https://www.amazon.com/s?k=[search terms]
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::build_search_url;
 
 pub struct AmazonCommand;
@@ -47,6 +49,13 @@ impl BunnylolCommand for AmazonCommand {
             "Navigate to Amazon or search for products",
             "az headphones",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["orders"], "Open Amazon orders"),
+            BunnylolCommandOption::new(&["account"], "Open Amazon account"),
+            BunnylolCommandOption::new(&["messages"], "Open Amazon messages"),
+            BunnylolCommandOption::new(&["cart"], "Open Amazon cart"),
+            BunnylolCommandOption::new(&["pay", "wallet"], "Open Amazon wallet"),
+        ])
     }
 }
 
