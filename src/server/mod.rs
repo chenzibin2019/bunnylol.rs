@@ -20,9 +20,13 @@ use rocket::State;
 use rocket::request::{self, FromRequest, Request};
 #[cfg(feature = "server")]
 use rocket::response::Redirect;
+#[cfg(feature = "server")]
+use rocket::serde::json::Json;
 
 #[cfg(feature = "server")]
-use crate::{BunnylolCommandRegistry, BunnylolConfig, ConfigReloader, History, utils};
+use crate::{
+    BunnylolCommandInfo, BunnylolCommandRegistry, BunnylolConfig, ConfigReloader, History, utils,
+};
 
 #[cfg(feature = "server")]
 mod server_impl {
@@ -86,6 +90,70 @@ mod server_impl {
         "ok"
     }
 
+    /// Return the command set that is active for the current configuration.
+    ///
+    /// Built-in aliases shadowed by user bindings are removed, inactive user
+    /// bindings that collide with built-ins are omitted, and active user
+    /// bindings are returned alongside the remaining built-ins.
+    fn collect_api_bindings(config: &BunnylolConfig) -> Vec<BunnylolCommandInfo> {
+        let builtin_names = BunnylolCommandRegistry::builtin_binding_names();
+        let overridden_names: std::collections::HashSet<&str> = config
+            .user_bindings
+            .iter()
+            .filter(|(_, binding)| binding.overrides_builtin())
+            .map(|(name, _)| name.as_str())
+            .collect();
+
+        let mut commands = BunnylolCommandRegistry::get_all_commands().clone();
+
+        for command in &mut commands {
+            command
+                .bindings
+                .retain(|binding| !overridden_names.contains(binding.as_str()));
+        }
+        commands.retain(|command| !command.bindings.is_empty());
+
+        for (name, binding) in &config.user_bindings {
+            let collides_with_builtin = builtin_names.contains(name.as_str());
+            if collides_with_builtin && !binding.overrides_builtin() {
+                continue;
+            }
+
+            let description = binding.description().unwrap_or("User-defined binding");
+            commands.push(BunnylolCommandInfo::new(
+                &[name.as_str()],
+                description,
+                name,
+            ));
+        }
+
+        commands.sort_by(|a, b| {
+            a.bindings
+                .first()
+                .map(String::as_str)
+                .unwrap_or("")
+                .to_lowercase()
+                .cmp(
+                    &b.bindings
+                        .first()
+                        .map(String::as_str)
+                        .unwrap_or("")
+                        .to_lowercase(),
+                )
+        });
+
+        commands
+    }
+
+    /// Machine-readable command discovery endpoint for clients such as Raycast.
+    #[rocket::get("/api/bindings")]
+    pub(super) fn api_bindings(
+        config: &State<ConfigReloader>,
+    ) -> Json<Vec<BunnylolCommandInfo>> {
+        let config = config.current();
+        Json(collect_api_bindings(&config))
+    }
+
     // Catch 404 errors and show landing page
     #[rocket::catch(404)]
     pub(super) fn not_found(req: &rocket::Request) -> rocket::response::content::RawHtml<String> {
@@ -125,7 +193,7 @@ pub async fn launch(config: BunnylolConfig) -> Result<(), Box<rocket::Error>> {
 
     let _rocket = rocket::custom(figment)
         .manage(ConfigReloader::new(config))
-        .mount("/", rocket::routes![search, health])
+        .mount("/", rocket::routes![search, health, api_bindings])
         .register("/", rocket::catchers![not_found])
         .launch()
         .await?;
