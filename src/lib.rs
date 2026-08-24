@@ -20,6 +20,8 @@ pub mod server;
 pub use server::service;
 
 pub use bunnylol_command_registry::BunnylolCommandRegistry;
-pub use commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+pub use commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 pub use config::{BunnylolConfig, ConfigReloader};
 pub use history::{History, HistoryEntry};
