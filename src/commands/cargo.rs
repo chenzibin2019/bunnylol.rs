@@ -11,7 +11,9 @@
 /// - cargo [search terms] -> https://crates.io/search?q=[search terms]
 /// - cargo settings -> https://crates.io/settings/profile
 /// - cargo tokens/api -> https://crates.io/settings/tokens
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::build_search_url;
 
 pub struct CargoCommand;
@@ -35,6 +37,10 @@ impl BunnylolCommand for CargoCommand {
             "Navigate to crates.io or search for Rust crates",
             "cargo serde",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["settings"], "Open crates.io profile settings"),
+            BunnylolCommandOption::new(&["tokens", "api"], "Open crates.io API tokens"),
+        ])
     }
 }
 
