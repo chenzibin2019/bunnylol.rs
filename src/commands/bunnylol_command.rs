@@ -7,12 +7,41 @@
 
 use serde::Serialize;
 
+/// Information about a fixed option accepted by a Bunnylol command.
+///
+/// `values` contains equivalent spellings for the same option. When
+/// `requires_argument` is true, clients should keep accepting input after the
+/// selected option instead of executing it immediately.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+pub struct BunnylolCommandOption {
+    pub values: Vec<String>,
+    pub description: String,
+    pub requires_argument: bool,
+}
+
+impl BunnylolCommandOption {
+    pub fn new(values: &[&str], description: &str) -> Self {
+        Self {
+            values: values.iter().map(|s| s.to_string()).collect(),
+            description: description.to_string(),
+            requires_argument: false,
+        }
+    }
+
+    pub fn requiring_argument(mut self) -> Self {
+        self.requires_argument = true;
+        self
+    }
+}
+
 /// Information about a registered command binding
-#[derive(Clone, Serialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct BunnylolCommandInfo {
     pub bindings: Vec<String>,
     pub description: String,
     pub example: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub options: Vec<BunnylolCommandOption>,
 }
 
 impl BunnylolCommandInfo {
@@ -22,7 +51,14 @@ impl BunnylolCommandInfo {
             bindings: bindings.iter().map(|s| s.to_string()).collect(),
             description: description.to_string(),
             example: example.to_string(),
+            options: Vec::new(),
         }
+    }
+
+    /// Attach fixed command options for discovery clients such as Raycast.
+    pub fn with_options(mut self, options: Vec<BunnylolCommandOption>) -> Self {
+        self.options = options;
+        self
     }
 }
 
@@ -111,5 +147,20 @@ mod tests {
             TestCommand::process_args("t hello"),
             "https://test.com/search?q=hello"
         );
+    }
+
+    #[test]
+    fn test_command_info_options() {
+        let info = BunnylolCommandInfo::new(&["test"], "Test command", "test")
+            .with_options(vec![
+                BunnylolCommandOption::new(&["settings"], "Open settings"),
+                BunnylolCommandOption::new(&["provider"], "Choose provider")
+                    .requiring_argument(),
+            ]);
+
+        assert_eq!(info.options.len(), 2);
+        assert_eq!(info.options[0].values, vec!["settings"]);
+        assert!(!info.options[0].requires_argument);
+        assert!(info.options[1].requires_argument);
     }
 }
