@@ -8,7 +8,9 @@
 /// Facebook command handler
 /// Supports: fb, fb [username/page], fb [search terms]
 /// Subcommands: mp/buy/sell -> Marketplace
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::{build_path_url, build_search_url};
 
 pub struct FacebookCommand;
@@ -44,6 +46,10 @@ impl BunnylolCommand for FacebookCommand {
             "Navigate to Facebook pages or search Facebook",
             "fb Meta",
         )
+        .with_options(vec![BunnylolCommandOption::new(
+            &["mp", "buy", "sell"],
+            "Open Facebook Marketplace",
+        )])
     }
 }
 
