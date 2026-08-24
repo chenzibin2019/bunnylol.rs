@@ -30,7 +30,7 @@ fn config_path(xdg_dir: &Path) -> PathBuf {
     xdg_dir.join("bunnylol/config.toml")
 }
 
-fn write_config(xdg_dir: &Path, default_search: &str, port: u16) {
+fn write_config_with_extra(xdg_dir: &Path, default_search: &str, port: u16, extra: &str) {
     fs::create_dir_all(xdg_dir.join("bunnylol")).expect("create config dir");
     fs::write(
         config_path(xdg_dir),
@@ -44,10 +44,16 @@ enabled = false
 port = {port}
 address = "127.0.0.1"
 log_level = "critical"
+
+{extra}
 "#
         ),
     )
     .expect("write config");
+}
+
+fn write_config(xdg_dir: &Path, default_search: &str, port: u16) {
+    write_config_with_extra(xdg_dir, default_search, port, "");
 }
 
 fn write_invalid_config(xdg_dir: &Path) {
@@ -143,6 +149,57 @@ fn assert_redirect_starts_with(port: u16, expected_prefix: &str) {
         location.starts_with(expected_prefix),
         "expected redirect to start with {expected_prefix}, got {location}"
     );
+}
+
+#[test]
+#[cfg(feature = "server")]
+fn test_bindings_api_exposes_option_metadata() {
+    let xdg_dir = unique_test_dir("bindings-api-options");
+    let port = free_port();
+    write_config(&xdg_dir, "google", port);
+
+    let mut server = spawn_server(&xdg_dir, port);
+    wait_for_server(&mut server, port);
+
+    let response = http_get(port, "/api/bindings").expect("request bindings API");
+    assert!(
+        response.starts_with("HTTP/1.1 200"),
+        "expected successful response, got:\n{response}"
+    );
+    assert!(response.contains("\"bindings\":[\"gh\"]"));
+    assert!(response.contains("\"values\":[\"settings\"]"));
+    assert!(response.contains("\"requires_argument\":false"));
+    assert!(response.contains("\"values\":[\"yahoo\"]"));
+    assert!(response.contains("\"requires_argument\":true"));
+
+    fs::remove_dir_all(&xdg_dir).ok();
+}
+
+#[test]
+#[cfg(feature = "server")]
+fn test_bindings_api_respects_user_binding_overrides() {
+    let xdg_dir = unique_test_dir("bindings-api-user-bindings");
+    let port = free_port();
+    write_config_with_extra(
+        &xdg_dir,
+        "google",
+        port,
+        r#"[user_bindings]
+quick = { url = "https://example.com", description = "Quick link" }
+gh = { url = "https://example.com/github", description = "Custom GitHub", override = true }"#,
+    );
+
+    let mut server = spawn_server(&xdg_dir, port);
+    wait_for_server(&mut server, port);
+
+    let response = http_get(port, "/api/bindings").expect("request bindings API");
+    assert!(response.contains("\"bindings\":[\"quick\"]"));
+    assert!(response.contains("\"description\":\"Quick link\""));
+    assert!(response.contains("\"bindings\":[\"gh\"]"));
+    assert!(response.contains("\"description\":\"Custom GitHub\""));
+    assert!(!response.contains("Navigate to GitHub profiles, repositories, or search GitHub"));
+
+    fs::remove_dir_all(&xdg_dir).ok();
 }
 
 #[test]
