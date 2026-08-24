@@ -12,7 +12,9 @@
 /// - python tutorial -> https://docs.python.org/3/tutorial/
 /// - python library -> https://docs.python.org/3/library/
 /// - python reference -> https://docs.python.org/3/reference/
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::build_search_url;
 
 pub struct PythonCommand;
@@ -37,6 +39,14 @@ impl BunnylolCommand for PythonCommand {
             "Navigate to Python documentation or search for Python resources",
             "python list",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["tutorial"], "Open the Python tutorial"),
+            BunnylolCommandOption::new(&["library", "lib"], "Open the Python library reference"),
+            BunnylolCommandOption::new(
+                &["reference", "ref"],
+                "Open the Python language reference",
+            ),
+        ])
     }
 }
 
