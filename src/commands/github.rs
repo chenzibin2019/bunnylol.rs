@@ -9,7 +9,9 @@
 /// Supports: gh, gh @[user], gh [user/repo], gh token[s]/pat, gh settings, gh bills/billing,
 /// gh notifications/notifs, gh teams, gh orgs, gh ssh/gpg/keys, gh security/passwords/auth/mfa/2fa,
 /// gh emails, gh [search terms]
-use crate::commands::bunnylol_command::{BunnylolCommand, BunnylolCommandInfo};
+use crate::commands::bunnylol_command::{
+    BunnylolCommand, BunnylolCommandInfo, BunnylolCommandOption,
+};
 use crate::utils::url_encoding::{build_path_url, build_search_url};
 
 pub struct GitHubCommand;
@@ -73,6 +75,26 @@ impl BunnylolCommand for GitHubCommand {
             "Navigate to GitHub profiles, repositories, or search GitHub",
             "gh facebook/react",
         )
+        .with_options(vec![
+            BunnylolCommandOption::new(&["settings"], "Open GitHub profile settings"),
+            BunnylolCommandOption::new(
+                &["token", "tokens", "pat"],
+                "Open personal access tokens",
+            ),
+            BunnylolCommandOption::new(&["bills", "billing"], "Open billing settings"),
+            BunnylolCommandOption::new(
+                &["notifications", "notifs"],
+                "Open notification settings",
+            ),
+            BunnylolCommandOption::new(&["teams"], "Open team settings"),
+            BunnylolCommandOption::new(&["orgs"], "Open organization settings"),
+            BunnylolCommandOption::new(&["ssh", "gpg", "keys"], "Open SSH and GPG keys"),
+            BunnylolCommandOption::new(
+                &["security", "passwords", "auth", "mfa", "2fa"],
+                "Open authentication and security settings",
+            ),
+            BunnylolCommandOption::new(&["emails"], "Open email settings"),
+        ])
     }
 }
 
